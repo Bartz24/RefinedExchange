@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bartz24.refinedexchange.config.ConfigOptions;
-import com.bartz24.refinedexchange.features.gui.ItemHandlerFiltered;
 import com.bartz24.refinedexchange.registry.ModItems;
 import com.raoulvdberge.refinedstorage.RSItems;
 import com.raoulvdberge.refinedstorage.api.autocrafting.ICraftingPattern;
@@ -27,10 +26,11 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 
 public class TileEMCCrafter extends TileNode implements ICraftingPatternContainer {
 
-	private ItemHandlerFiltered items;
+	private ItemHandlerBasic items;
 	private ItemHandlerBasic filter;
 	private ItemHandlerBasic output;
 	private ItemHandlerUpgrade upgrades;
@@ -39,10 +39,7 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 	private long emcStored;
 
 	public TileEMCCrafter() {
-		items = new ItemHandlerFiltered(5, this,
-				new IItemValidator[] { new ItemValidatorBasic(ModItems.solidEMC, 0),
-						new ItemValidatorBasic(ModItems.solidEMC, 1), new ItemValidatorBasic(ModItems.solidEMC, 2),
-						new ItemValidatorBasic(ModItems.solidEMC, 3), new ItemValidatorBasic(ModItems.solidEMC, 4) });
+		items = new ItemHandlerBasic(5, this, new IItemValidator[] { new ItemValidatorBasic(ModItems.solidEMC) });
 		filter = new ItemHandlerBasic(9, this, new IItemValidator[0]);
 		output = new ItemHandlerBasic(1, this, new IItemValidator[0]);
 		upgrades = new ItemHandlerUpgrade(4, this, new int[] { 2 });
@@ -59,29 +56,31 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 		if (ticks % 100 == 0) {
 			this.rebuildPatterns();
 		}
-		if (ticks % Math.max(ConfigOptions.emcCrafterSpeed - upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) * 4, 1) == 0) {
+		if (ticks % Math.max(ConfigOptions.emcCrafterSpeed - upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) * 4,
+				1) == 0) {
 			getCraftingRecipe();
 			updateEMC();
+			craft();
 			if (output.getStackInSlot(0) != null) {
 				output.setStackInSlot(0,
 						network.insertItem(output.getStackInSlot(0), output.getStackInSlot(0).stackSize, false));
 			}
-			craft();
-			markDirty();
 		}
+		if (ticks % 20 == 0)
+			markDirty();
 
 	}
 
 	private void updateEMC() {
 
 		if (curItem == null) {
-			for (int i = 0; i < 5; i++) {
-				if (emcStored > Math.pow(64, i)) {
+			for (int i = 4; i >= 0; i--) {
+				if (emcStored >= Math.pow(64, i)) {
 					long num = Math.floorDiv(emcStored, (int) Math.pow(64, i));
 					items.setStackInSlot(i, new ItemStack(ModItems.solidEMC, (int) num, i));
-					emcStored -=  Math.pow(64, i) * num;
-				} 
-			}			
+					emcStored -= Math.pow(64, i) * num;
+				}
+			}
 			for (int i = 0; i < items.getSlots(); i++)
 				if (items.getStackInSlot(i) != null)
 					items.setStackInSlot(i,
@@ -89,7 +88,8 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 		} else {
 			for (int i = 0; i < items.getSlots(); i++) {
 				if (items.getStackInSlot(i) != null) {
-					emcStored += items.getStackInSlot(i).stackSize * Math.pow(64, i);
+					emcStored += items.getStackInSlot(i).stackSize
+							* Math.pow(64, items.getStackInSlot(i).getMetadata());
 					items.setStackInSlot(i, null);
 				}
 			}
@@ -111,7 +111,7 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 
 		for (ICraftingTask task : tasks) {
 			for (ICraftingStep step : task.getSteps()) {
-				if (step.hasStartedProcessing() && step.getPattern().getContainer().getFacingTile() == this) {
+				if (step.hasStartedProcessing() && step.getPattern().getContainer().getPosition() == pos) {
 					curItem = step.getPattern().getOutputs().get(0);
 					return;
 				}
@@ -126,6 +126,7 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 		upgrades.deserializeNBT(tag.getCompoundTag("upgradesInv"));
 		filter.deserializeNBT(tag.getCompoundTag("filterInv"));
 		output.deserializeNBT(tag.getCompoundTag("outputInv"));
+		curItem = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("curItem"));
 		emcStored = tag.getLong("emcStored");
 		this.rebuildPatterns();
 	}
@@ -137,6 +138,8 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 		tag.setTag("filterInv", filter.serializeNBT());
 		tag.setTag("outputInv", output.serializeNBT());
 		tag.setLong("emcStored", emcStored);
+		if (curItem != null)
+			curItem.writeToNBT(tag.getCompoundTag("curItem"));
 		return tag;
 	}
 
@@ -150,6 +153,18 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 
 	public IItemHandler getFilter() {
 		return filter;
+	}
+
+	public IItemHandler getDrops() {
+		return new CombinedInvWrapper(items, output, upgrades);
+	}
+
+	public ItemStack getCurCraft() {
+		return curItem;
+	}
+
+	public long getEMCStored() {
+		return emcStored;
 	}
 
 	public List<ICraftingPattern> getPatterns() {
@@ -177,11 +192,11 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 
 	private void setEMCInputs(ItemStack pattern, int emc) {
 		for (int i = 4; i >= 0; i--) {
-			if (emc > Math.pow(64, i)) {
+			if (emc >= Math.pow(64, i)) {
 				int num = Math.floorDiv(emc, (int) Math.pow(64, i));
 				ItemPattern.setSlot(pattern, i, new ItemStack(ModItems.solidEMC, num, i));
-				emc -=  Math.pow(64, i) * num;
-			} 
+				emc -= Math.pow(64, i) * num;
+			}
 		}
 	}
 

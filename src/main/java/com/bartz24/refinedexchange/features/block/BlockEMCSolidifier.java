@@ -7,6 +7,7 @@ import com.bartz24.refinedexchange.features.tile.TileEMCSolidifier;
 import com.bartz24.refinedexchange.registry.ModCreativeTabs;
 import com.bartz24.refinedexchange.registry.ModGuiHandler;
 import com.raoulvdberge.refinedstorage.api.network.INetworkMaster;
+import com.raoulvdberge.refinedstorage.tile.TileBase;
 import com.raoulvdberge.refinedstorage.tile.TileController;
 import com.raoulvdberge.refinedstorage.tile.TileNode;
 
@@ -15,6 +16,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
@@ -23,6 +25,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.items.IItemHandler;
 
 public class BlockEMCSolidifier extends BlockContainer {
 
@@ -87,6 +90,14 @@ public class BlockEMCSolidifier extends BlockContainer {
 			TileEntity tile = world.getTileEntity(pos);
 			if (tile instanceof TileNode)
 				network = ((TileNode) tile).getNetwork();
+			if ((tile instanceof TileBase) && ((TileBase) tile).getDrops() != null) {
+				IItemHandler handler = ((TileBase) tile).getDrops();
+				for (int i = 0; i < handler.getSlots(); i++)
+					if (handler.getStackInSlot(i) != null)
+						InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(),
+								handler.getStackInSlot(i));
+
+			}
 		}
 		super.breakBlock(world, pos, state);
 		if (network != null)

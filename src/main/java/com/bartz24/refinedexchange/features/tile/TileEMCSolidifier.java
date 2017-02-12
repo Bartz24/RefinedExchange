@@ -17,6 +17,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 
 public class TileEMCSolidifier extends TileNode {
 
@@ -38,22 +39,23 @@ public class TileEMCSolidifier extends TileNode {
 
 	@Override
 	public void updateNode() {
-		if (ticks % (ConfigOptions.emcSolidifierSpeed - upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) * 2) == 0) {
+		if (ticks % (ConfigOptions.emcSolidifierSpeed - upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) * 4) == 0) {
 			updateEMC();
 			if (output.getStackInSlot(0) != null) {
 				output.setStackInSlot(0,
 						network.insertItem(output.getStackInSlot(0), output.getStackInSlot(0).stackSize, false));
 			}
 			solidify();
-			markDirty();
 		}
+		if (ticks % 20 == 0)
+			markDirty();
 
 	}
 
 	private void updateEMC() {
 
 		for (int i = 4; i >= 0; i--) {
-			if (emcStored > Math.pow(64, i) && output.getStackInSlot(0) == null) {
+			if (emcStored >= Math.pow(64, i) && output.getStackInSlot(0) == null) {
 				long num = Math.min(Math.floorDiv(emcStored, (int) Math.pow(64, i)),
 						upgrades.getUpgradeCount(ItemUpgrade.TYPE_STACK) > 0 ? 64 : 1);
 				output.setStackInSlot(0, new ItemStack(ModItems.solidEMC, (int) num, i));
@@ -64,8 +66,10 @@ public class TileEMCSolidifier extends TileNode {
 
 	private void solidify() {
 		if (items.getStackInSlot(0) != null && ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0)) > 0) {
-			emcStored += ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0));
-			items.getStackInSlot(0).stackSize--;
+			int num = Math.min(items.getStackInSlot(0).stackSize,
+					upgrades.getUpgradeCount(ItemUpgrade.TYPE_STACK) > 0 ? 64 : 1);
+			emcStored += ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0)) * num;
+			items.getStackInSlot(0).stackSize -= num;
 			if (items.getStackInSlot(0).stackSize <= 0)
 				items.setStackInSlot(0, null);
 		}
@@ -94,6 +98,10 @@ public class TileEMCSolidifier extends TileNode {
 
 	public IItemHandler getItems() {
 		return items;
+	}
+
+	public IItemHandler getDrops() {
+		return new CombinedInvWrapper(items, output, upgrades);
 	}
 
 	public long getEmcStored() {

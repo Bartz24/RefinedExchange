@@ -25,6 +25,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 
 public class TileEMCConverter extends TileNode implements ICraftingPatternContainer {
 
@@ -61,8 +62,9 @@ public class TileEMCConverter extends TileNode implements ICraftingPatternContai
 							network.insertItem(items.getStackInSlot(0), items.getStackInSlot(0).stackSize, false));
 			}
 			craft();
-			markDirty();
 		}
+		if (ticks % 20 == 0)
+			markDirty();
 	}
 
 	private void craft() {
@@ -92,7 +94,7 @@ public class TileEMCConverter extends TileNode implements ICraftingPatternContai
 		List<ICraftingTask> tasks = network.getCraftingTasks();
 		for (ICraftingTask task : tasks) {
 			for (ICraftingStep step : task.getSteps()) {
-				if (step.hasStartedProcessing() && step.getPattern().getContainer().getFacingTile() == this) {
+				if (step.hasStartedProcessing() && step.getPattern().getContainer().getPosition() == pos) {
 					curPattern = step.getPattern();
 					return;
 				}
@@ -126,6 +128,11 @@ public class TileEMCConverter extends TileNode implements ICraftingPatternContai
 	public IItemHandler getItems() {
 		return items;
 	}
+
+    public IItemHandler getDrops()
+    {
+        return new CombinedInvWrapper(items, output, upgrades);
+    }
 
 	public boolean getConvertUp() {
 		return convertUp;
