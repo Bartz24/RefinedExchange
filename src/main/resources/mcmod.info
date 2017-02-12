@@ -1,0 +1,17 @@
+[
+{
+  "modid": "refinedexchange",
+  "name": "Refined Exchange",
+  "description": "Autocraft in Refined Storage using ProjectE EMC!",
+  "version": "1.0",
+  "mcversion": "1.10.2",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Bartz24"],
+  "credits": "Authors of Refined Storage and ProjectE to make this possible!",
+  "logoFile": "",
+  "screenshots": [],
+  "requiredMods": ["refinedstorage", "ProjectE"],
+  "dependencies": []
+}
+]

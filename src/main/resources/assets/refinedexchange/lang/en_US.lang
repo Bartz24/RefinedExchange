@@ -1,0 +1,13 @@
+itemGroup.refinedExchange.tabMain=Refined Exchange
+tile.refinedexchange.emcCrafter.name=EMC Crafter
+tile.refinedexchange.emcConverter.name=EMC Converter
+tile.refinedexchange.emcSolidifier.name=EMC Solidifier
+gui.refinedexchange:emcCrafter=EMC Crafter
+gui.refinedexchange:emcConverter=EMC Converter
+gui.refinedexchange:emcSolidifier=EMC Solidifier
+
+item.refinedexchange.solidEMC.low.name=Low Solidified EMC
+item.refinedexchange.solidEMC.medium.name=Medium Solidified EMC
+item.refinedexchange.solidEMC.high.name=High Solidified EMC
+item.refinedexchange.solidEMC.extreme.name=Extreme Solidified EMC
+item.refinedexchange.solidEMC.ultimate.name=Ultimate Solidified EMC
