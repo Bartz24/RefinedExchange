@@ -2,6 +2,7 @@ package com.bartz24.refinedexchange.proxy;
 
 import com.bartz24.refinedexchange.RefinedExchange;
 import com.bartz24.refinedexchange.config.ConfigOptions;
+import com.bartz24.refinedexchange.features.emc.ProjectEMappings;
 import com.bartz24.refinedexchange.registry.ModBlocks;
 import com.bartz24.refinedexchange.registry.ModCrafting;
 import com.bartz24.refinedexchange.registry.ModGuiHandler;
@@ -34,5 +35,6 @@ public class CommonProxy
 	public void postInit(FMLPostInitializationEvent e)
 	{
 		ModCrafting.init();
+		ProjectEMappings.postInit();
 	}
 }

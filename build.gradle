@@ -20,7 +20,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "1.0.3"
+version = "1.1.1"
 group= "com.bartz24.refinedexchange" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "refinedexchange"
 
@@ -37,7 +37,7 @@ repositories {
 }
 
 minecraft {
-    version = "1.10.2-12.18.3.2221"
+    version = "1.10.2-12.18.3.2422"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
@@ -50,7 +50,7 @@ minecraft {
 }
 
 dependencies {
-    compile 'refinedstorage:refinedstorage:1.2.21+'
+    compile 'refinedstorage:refinedstorage:1.2.26+'
 
 }
 

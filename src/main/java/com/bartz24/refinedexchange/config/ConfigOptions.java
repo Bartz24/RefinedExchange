@@ -12,13 +12,8 @@ public class ConfigOptions {
 	public static Configuration config;
 
 	public static int emcCrafterEnergy;
-	public static int emcCrafterSpeed;
-
-	public static int emcConverterEnergy;
-	public static int emcConverterSpeed;
 
 	public static int emcSolidifierEnergy;
-	public static int emcSolidifierSpeed;
 
 	public static List<IConfigElement> getConfigElements() {
 		List<IConfigElement> list = new ArrayList<IConfigElement>();
@@ -29,17 +24,9 @@ public class ConfigOptions {
 	}
 
 	public static void setConfigSettings() {
-		emcCrafterEnergy = config.get(Configuration.CATEGORY_GENERAL, "EMC Crafter Energy", 30).getInt(30);
-		emcCrafterSpeed = config.get(Configuration.CATEGORY_GENERAL, "EMC Crafter Speed", 20)
-				.getInt(20);
-
-		emcConverterEnergy = config.get(Configuration.CATEGORY_GENERAL, "EMC Converter Energy", 40).getInt(40);
-		emcConverterSpeed = config.get(Configuration.CATEGORY_GENERAL, "EMC Converter Speed", 16)
-				.getInt(16);
+		emcCrafterEnergy = config.get(Configuration.CATEGORY_GENERAL, "EMC Crafter Energy", 40).getInt(40);
 
 		emcSolidifierEnergy = config.get(Configuration.CATEGORY_GENERAL, "EMC Solidifier Energy", 20).getInt(20);
-		emcSolidifierSpeed = config.get(Configuration.CATEGORY_GENERAL, "EMC Solidifier Speed", 50)
-				.getInt(50);
 
 		if (config.hasChanged())
 			config.save();

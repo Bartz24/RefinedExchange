@@ -2,7 +2,6 @@ package com.bartz24.refinedexchange.features.block;
 
 import com.bartz24.refinedexchange.References;
 import com.bartz24.refinedexchange.RefinedExchange;
-import com.bartz24.refinedexchange.features.tile.TileEMCConverter;
 import com.bartz24.refinedexchange.features.tile.TileEMCSolidifier;
 import com.bartz24.refinedexchange.registry.ModCreativeTabs;
 import com.bartz24.refinedexchange.registry.ModGuiHandler;
@@ -23,7 +22,6 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 

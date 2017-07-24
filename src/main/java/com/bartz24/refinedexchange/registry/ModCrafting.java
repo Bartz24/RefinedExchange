@@ -14,11 +14,6 @@ public class ModCrafting {
 		Item covDust = Item.REGISTRY.getObject(new ResourceLocation("projecte", "item.pe_covalence_dust"));
 		Item matter = Item.REGISTRY.getObject(new ResourceLocation("projecte", "item.pe_matter"));
 		Block condenser = Block.REGISTRY.getObject(new ResourceLocation("projecte", "condenser_mk1"));
-		GameRegistry.addRecipe(new ItemStack(ModBlocks.emcConverter),
-				new Object[] { "XYX", "ZAB", "XCX", 'X', new ItemStack(RSItems.QUARTZ_ENRICHED_IRON), 'Y',
-						new ItemStack(covDust, 1, 2), 'Z', new ItemStack(RSItems.CORE), 'A',
-						new ItemStack(RSBlocks.MACHINE_CASING), 'B', new ItemStack(RSItems.CORE, 1, 1), 'C',
-						new ItemStack(covDust, 1, 1) });
 		GameRegistry.addRecipe(new ItemStack(ModBlocks.emcCrafter),
 				new Object[] { "XYX", "ZAZ", "XYX", 'X', new ItemStack(RSItems.QUARTZ_ENRICHED_IRON), 'Y',
 						new ItemStack(matter), 'Z', new ItemStack(RSItems.CORE), 'A',

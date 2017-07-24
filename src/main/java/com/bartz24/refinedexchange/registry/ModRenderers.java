@@ -1,7 +1,5 @@
 package com.bartz24.refinedexchange.registry;
 
-import com.bartz24.refinedexchange.features.item.ItemSolidEMC;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -15,11 +13,9 @@ import net.minecraftforge.client.model.ModelLoader;
 public class ModRenderers {
 	public static void preInit() {
 
-		for (int i = 0; i < ItemSolidEMC.getNames().size(); i++)
-			registerItemRenderer(ModItems.solidEMC, i);
+		registerItemRenderer(ModItems.solidEMC);
 
 		registerItemRenderer(Item.getItemFromBlock(ModBlocks.emcCrafter));
-		registerItemRenderer(Item.getItemFromBlock(ModBlocks.emcConverter));
 		registerItemRenderer(Item.getItemFromBlock(ModBlocks.emcSolidifier));
 
 		// registerVariantsDefaulted(ModBlocks.combustionHeater,

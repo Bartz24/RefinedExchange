@@ -11,6 +11,7 @@ import com.raoulvdberge.refinedstorage.api.autocrafting.ICraftingPatternContaine
 import com.raoulvdberge.refinedstorage.api.autocrafting.ICraftingPatternProvider;
 import com.raoulvdberge.refinedstorage.api.autocrafting.task.ICraftingStep;
 import com.raoulvdberge.refinedstorage.api.autocrafting.task.ICraftingTask;
+import com.raoulvdberge.refinedstorage.api.network.INetworkMaster;
 import com.raoulvdberge.refinedstorage.inventory.IItemValidator;
 import com.raoulvdberge.refinedstorage.inventory.ItemHandlerBasic;
 import com.raoulvdberge.refinedstorage.inventory.ItemHandlerUpgrade;
@@ -35,15 +36,23 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 	private ItemHandlerBasic output;
 	private ItemHandlerUpgrade upgrades;
 	private List<ICraftingPattern> patterns;
-	private ItemStack curItem;
-	private long emcStored;
+	private List<ItemStack> curCrafts;
+	private long emcNeeded;
+	private boolean dirty;
 
 	public TileEMCCrafter() {
-		items = new ItemHandlerBasic(5, this, new IItemValidator[] { new ItemValidatorBasic(ModItems.solidEMC) });
-		filter = new ItemHandlerBasic(9, this, new IItemValidator[0]);
+		items = new ItemHandlerBasic(1, this, new IItemValidator[] { new ItemValidatorBasic(ModItems.solidEMC) });
+		filter = new ItemHandlerBasic(9, this, new IItemValidator[0]) {
+
+			protected void onContentsChanged(int slot) {
+				super.onContentsChanged(slot);
+				TileEMCCrafter.this.rebuildPatterns();
+			}
+		};
 		output = new ItemHandlerBasic(1, this, new IItemValidator[0]);
 		upgrades = new ItemHandlerUpgrade(4, this, new int[] { 2 });
 		patterns = new ArrayList<>();
+		curCrafts = new ArrayList<>();
 	}
 
 	@Override
@@ -53,71 +62,88 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 
 	@Override
 	public void updateNode() {
-		if (ticks % 100 == 0) {
-			this.rebuildPatterns();
-		}
-		if (ticks % Math.max(ConfigOptions.emcCrafterSpeed - upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) * 4,
-				1) == 0) {
-			getCraftingRecipe();
+		if (ticks % 20 == 0) {
+			int patternAmt = 0;
+			for (int i = 0; i < filter.getSlots(); i++) {
+				if (filter.getStackInSlot(i) != null)
+					patternAmt++;
+			}
+			if (patternAmt != patterns.size())
+				rebuildPatterns();
+			curCrafts.clear();
+			getCraftingRecipes();
 			updateEMC();
-			craft();
-			if (output.getStackInSlot(0) != null) {
-				output.setStackInSlot(0,
-						network.insertItem(output.getStackInSlot(0), output.getStackInSlot(0).stackSize, false));
+			for (int i = curCrafts.size() - 1; i >= 0; i--) {
+				craft();
+				if (output.getStackInSlot(0) != null) {
+					output.setStackInSlot(0,
+							network.insertItem(output.getStackInSlot(0), output.getStackInSlot(0).stackSize, false));
+					dirty = true;
+				}
 			}
 		}
-		if (ticks % 20 == 0)
+		if (dirty) {
 			markDirty();
+			dirty = false;
+		}
 
 	}
 
 	private void updateEMC() {
 
-		if (curItem == null) {
-			for (int i = 4; i >= 0; i--) {
-				if (emcStored >= Math.pow(64, i)) {
-					long num = Math.floorDiv(emcStored, (int) Math.pow(64, i));
-					items.setStackInSlot(i, new ItemStack(ModItems.solidEMC, (int) num, i));
-					emcStored -= Math.pow(64, i) * num;
-				}
+		if (curCrafts.size() == 0) {
+			if (items.getStackInSlot(0) != null) {
+				items.setStackInSlot(0,
+						network.insertItem(items.getStackInSlot(0), items.getStackInSlot(0).stackSize, false));
+				dirty = true;
 			}
-			for (int i = 0; i < items.getSlots(); i++)
-				if (items.getStackInSlot(i) != null)
-					items.setStackInSlot(i,
-							network.insertItem(items.getStackInSlot(i), items.getStackInSlot(i).stackSize, false));
 		} else {
-			for (int i = 0; i < items.getSlots(); i++) {
-				if (items.getStackInSlot(i) != null) {
-					emcStored += items.getStackInSlot(i).stackSize
-							* Math.pow(64, items.getStackInSlot(i).getMetadata());
-					items.setStackInSlot(i, null);
+			int needed = 0;
+			for (ItemStack s : curCrafts) {
+				needed += ProjectEAPI.getEMCProxy().getValue(s);
+			}
+			int amt = items.getStackInSlot(0) == null ? needed : (needed - items.getStackInSlot(0).stackSize);
+
+			if (amt > 0) {
+				ItemStack extract = network.extractItem(new ItemStack(ModItems.solidEMC, amt), amt, false);
+				if (extract != null) {
+					if (items.getStackInSlot(0) == null)
+						items.setStackInSlot(0, extract);
+					else
+						items.getStackInSlot(0).stackSize += extract.stackSize;
+					dirty = true;
 				}
 			}
 		}
 	}
 
 	private void craft() {
-		if (curItem != null && output.getStackInSlot(0) == null) {
-			if (emcStored >= ProjectEAPI.getEMCProxy().getValue(curItem)) {
-				output.setStackInSlot(0, curItem);
-				emcStored -= ProjectEAPI.getEMCProxy().getValue(curItem);
-				curItem = null;
+		if (getCurCraft() != null && items.getStackInSlot(0) != null && output.getStackInSlot(0) == null) {
+			if (items.getStackInSlot(0).stackSize >= ProjectEAPI.getEMCProxy().getValue(getCurCraft())) {
+				output.setStackInSlot(0, getCurCraft());
+				items.getStackInSlot(0).stackSize -= ProjectEAPI.getEMCProxy().getValue(getCurCraft());
+				if (items.getStackInSlot(0).stackSize <= 0)
+					items.setStackInSlot(0, null);
+
+				curCrafts.remove(curCrafts.size() - 1);
+				dirty = true;
 			}
 		}
 	}
 
-	private void getCraftingRecipe() {
-		List<ICraftingTask> tasks = network.getCraftingTasks();
-
-		for (ICraftingTask task : tasks) {
+	private void getCraftingRecipes() {
+		int maxAmount = upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) * 8 + 1;
+		int amount = 0;
+		for (ICraftingTask task : network.getCraftingTasks()) {
 			for (ICraftingStep step : task.getSteps()) {
 				if (step.hasStartedProcessing() && step.getPattern().getContainer().getPosition() == pos) {
-					curItem = step.getPattern().getOutputs().get(0);
-					return;
+					curCrafts.add(step.getPattern().getOutputs().get(0));
+					amount++;
+					if (amount >= maxAmount)
+						return;
 				}
 			}
 		}
-		curItem = null;
 	}
 
 	public void read(NBTTagCompound tag) {
@@ -126,8 +152,6 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 		upgrades.deserializeNBT(tag.getCompoundTag("upgradesInv"));
 		filter.deserializeNBT(tag.getCompoundTag("filterInv"));
 		output.deserializeNBT(tag.getCompoundTag("outputInv"));
-		curItem = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("curItem"));
-		emcStored = tag.getLong("emcStored");
 		this.rebuildPatterns();
 	}
 
@@ -137,9 +161,6 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 		tag.setTag("upgradesInv", upgrades.serializeNBT());
 		tag.setTag("filterInv", filter.serializeNBT());
 		tag.setTag("outputInv", output.serializeNBT());
-		tag.setLong("emcStored", emcStored);
-		if (curItem != null)
-			curItem.writeToNBT(tag.getCompoundTag("curItem"));
 		return tag;
 	}
 
@@ -160,11 +181,7 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 	}
 
 	public ItemStack getCurCraft() {
-		return curItem;
-	}
-
-	public long getEMCStored() {
-		return emcStored;
+		return curCrafts.size() > 0 ? curCrafts.get(curCrafts.size() - 1) : null;
 	}
 
 	public List<ICraftingPattern> getPatterns() {
@@ -178,7 +195,6 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 				if (filter.getStackInSlot(i) != null
 						&& ProjectEAPI.getEMCProxy().getValue(filter.getStackInSlot(i)) > 0) {
 					ItemStack pattern = new ItemStack(RSItems.PATTERN);
-					setEMCInputs(pattern, ProjectEAPI.getEMCProxy().getValue(filter.getStackInSlot(i)));
 					ItemPattern.addOutput(pattern, new ItemStack(filter.getStackInSlot(i).getItem(), 1,
 							filter.getStackInSlot(i).getMetadata()));
 					ItemPattern.isProcessing(pattern);
@@ -187,16 +203,14 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 			}
 			if (network != null)
 				network.rebuildPatterns();
+			dirty = true;
 		}
 	}
 
 	private void setEMCInputs(ItemStack pattern, int emc) {
-		for (int i = 4; i >= 0; i--) {
-			if (emc >= Math.pow(64, i)) {
-				int num = Math.floorDiv(emc, (int) Math.pow(64, i));
-				ItemPattern.setSlot(pattern, i, new ItemStack(ModItems.solidEMC, num, i));
-				emc -= Math.pow(64, i) * num;
-			}
+		for (int i = 0; i < Math.floor(((float) emc) / 64f); i++) {
+			ItemPattern.setSlot(pattern, i, new ItemStack(ModItems.solidEMC, Math.min(64, emc)));
+			emc -= Math.min(64, emc);
 		}
 	}
 
@@ -212,7 +226,18 @@ public class TileEMCCrafter extends TileNode implements ICraftingPatternContaine
 
 	@Override
 	public int getSpeedUpdateCount() {
-		return ConfigOptions.emcCrafterSpeed + upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED);
+		return 1;
+	}
+
+	@Override
+	public void onConnectionChange(INetworkMaster network, boolean state) {
+		if (!state) {
+			network.getCraftingTasks().stream()
+					.filter(task -> task.getPattern().getContainer().getPosition().equals(pos))
+					.forEach(network::cancelCraftingTask);
+		}
+
+		network.rebuildPatterns();
 	}
 
 	@Override

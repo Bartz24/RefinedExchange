@@ -5,8 +5,6 @@ import com.bartz24.refinedexchange.features.tile.TileEMCSolidifier;
 import com.raoulvdberge.refinedstorage.gui.GuiBase;
 import com.raoulvdberge.refinedstorage.gui.sidebutton.SideButtonRedstoneMode;
 
-import net.minecraft.util.text.TextFormatting;
-
 public class GuiEMCSolidifier extends GuiBase {
 
 	TileEMCSolidifier tile;
@@ -30,7 +28,6 @@ public class GuiEMCSolidifier extends GuiBase {
 
 	public void drawForeground(int mouseX, int mouseY) {
 		drawString(7, 7, t("gui.refinedexchange:emcSolidifier", new Object[0]));
-		drawString(7, 24, TextFormatting.YELLOW + "EMC " + TextFormatting.DARK_GRAY + tile.getEmcStored());
 		drawString(7, 43, t("container.inventory", new Object[0]));
 	}
 }

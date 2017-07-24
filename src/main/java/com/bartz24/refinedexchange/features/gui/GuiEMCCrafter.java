@@ -27,7 +27,6 @@ public class GuiEMCCrafter extends GuiBase {
 
 	public void drawForeground(int mouseX, int mouseY) {
 		drawString(7, 7, t("gui.refinedexchange:emcCrafter", new Object[0]));
-		drawString(7, -10, Long.toString(tile.getEMCStored()));
 		drawString(7, 43, t("container.inventory", new Object[0]));
 	}
 }

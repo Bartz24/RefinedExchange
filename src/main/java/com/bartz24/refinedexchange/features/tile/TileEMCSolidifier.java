@@ -24,7 +24,7 @@ public class TileEMCSolidifier extends TileNode {
 	private ItemHandlerBasic items;
 	private ItemHandlerBasic output;
 	private ItemHandlerUpgrade upgrades;
-	private long emcStored;
+	private boolean dirty;
 
 	public TileEMCSolidifier() {
 		items = new ItemHandlerBasic(1, this, new IItemValidator[0]);
@@ -39,39 +39,41 @@ public class TileEMCSolidifier extends TileNode {
 
 	@Override
 	public void updateNode() {
-		if (ticks % (ConfigOptions.emcSolidifierSpeed - upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) * 4) == 0) {
-			updateEMC();
+		if (ticks % 20 == 0) {
+			for (int i = 0; i < upgrades.getUpgradeCount(ItemUpgrade.TYPE_SPEED) + 1; i++) {
+				solidify();
+			}
 			if (output.getStackInSlot(0) != null) {
 				output.setStackInSlot(0,
 						network.insertItem(output.getStackInSlot(0), output.getStackInSlot(0).stackSize, false));
+				dirty = true;
 			}
-			solidify();
 		}
-		if (ticks % 20 == 0)
+		if (dirty)
+		{
 			markDirty();
-
-	}
-
-	private void updateEMC() {
-
-		for (int i = 4; i >= 0; i--) {
-			if (emcStored >= Math.pow(64, i) && output.getStackInSlot(0) == null) {
-				long num = Math.min(Math.floorDiv(emcStored, (int) Math.pow(64, i)),
-						upgrades.getUpgradeCount(ItemUpgrade.TYPE_STACK) > 0 ? 64 : 1);
-				output.setStackInSlot(0, new ItemStack(ModItems.solidEMC, (int) num, i));
-				emcStored -= Math.pow(64, i) * num;
-			}
+			dirty = false;
 		}
+
 	}
 
 	private void solidify() {
 		if (items.getStackInSlot(0) != null && ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0)) > 0) {
 			int num = Math.min(items.getStackInSlot(0).stackSize,
 					upgrades.getUpgradeCount(ItemUpgrade.TYPE_STACK) > 0 ? 64 : 1);
-			emcStored += ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0)) * num;
+
+			if (output.getStackInSlot(0) == null || output.getStackInSlot(0).stackSize <= 0)
+				output.setStackInSlot(0, new ItemStack(ModItems.solidEMC,
+						ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0)) * num));
+			else if (output.getStackInSlot(0).stackSize
+					+ ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0)) * num < Integer.MAX_VALUE)
+				output.getStackInSlot(0).stackSize += ProjectEAPI.getEMCProxy().getValue(items.getStackInSlot(0)) * num;
+			else
+				return;
 			items.getStackInSlot(0).stackSize -= num;
 			if (items.getStackInSlot(0).stackSize <= 0)
 				items.setStackInSlot(0, null);
+			dirty = true;
 		}
 	}
 
@@ -80,7 +82,6 @@ public class TileEMCSolidifier extends TileNode {
 		items.deserializeNBT(tag.getCompoundTag("itemsInv"));
 		upgrades.deserializeNBT(tag.getCompoundTag("upgradesInv"));
 		output.deserializeNBT(tag.getCompoundTag("outputInv"));
-		emcStored = tag.getLong("emcStored");
 	}
 
 	public NBTTagCompound write(NBTTagCompound tag) {
@@ -88,7 +89,6 @@ public class TileEMCSolidifier extends TileNode {
 		tag.setTag("itemsInv", items.serializeNBT());
 		tag.setTag("upgradesInv", upgrades.serializeNBT());
 		tag.setTag("outputInv", output.serializeNBT());
-		tag.setLong("emcStored", emcStored);
 		return tag;
 	}
 
@@ -102,10 +102,6 @@ public class TileEMCSolidifier extends TileNode {
 
 	public IItemHandler getDrops() {
 		return new CombinedInvWrapper(items, output, upgrades);
-	}
-
-	public long getEmcStored() {
-		return emcStored;
 	}
 
 	@Override
