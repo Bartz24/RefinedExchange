@@ -1,7 +1,6 @@
 package com.bartz24.refinedexchange.features.block;
 
 import com.bartz24.refinedexchange.References;
-import com.bartz24.refinedexchange.features.tile.TileEMCCrafter;
 import com.bartz24.refinedexchange.features.tile.TileLiquifier;
 import com.bartz24.refinedexchange.registry.ModGuiHandler;
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNode;
@@ -23,9 +22,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockEMCCrafter extends BlockNode {
-    public BlockEMCCrafter() {
-        super(BlockInfoBuilder.forId("emccrafter").tileEntity(TileEMCCrafter::new).create());
+public class BlockLiquifier extends BlockNode {
+    public BlockLiquifier() {
+        super(BlockInfoBuilder.forId("liquifier").tileEntity(TileLiquifier::new).create());
     }
 
     @Override
@@ -36,7 +35,7 @@ public class BlockEMCCrafter extends BlockNode {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-        return openNetworkGui(ModGuiHandler.EMCCrafter, player, world, pos, side, Permission.MODIFY, Permission.INSERT, Permission.EXTRACT);
+        return openNetworkGui(ModGuiHandler.EMCLiquifier, player, world, pos, side, Permission.MODIFY, Permission.INSERT, Permission.EXTRACT);
     }
 
     @Override

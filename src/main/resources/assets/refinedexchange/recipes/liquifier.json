@@ -1,0 +1,30 @@
+{
+  "result": {
+    "item": "refinedstorage:liquifier"
+  },
+  "pattern": [
+    "XYX",
+    "ZAZ",
+    "XBX"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "X": {
+      "item": "refinedstorage:quartz_enriched_iron"
+    },
+    "Y": {
+      "item": "projecte:condenser_mk1"
+    },
+    "Z": {
+      "item": "refinedstorage:core",
+      "data": 1
+    },
+    "A": {
+      "item": "refinedstorage:machine_casing"
+    },
+    "B": {
+      "item": "refinedstorage:processor",
+      "data": 5
+    }
+  }
+}

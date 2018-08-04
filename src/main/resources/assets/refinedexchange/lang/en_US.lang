@@ -1,7 +1,7 @@
 itemGroup.refinedExchange.tabMain=Refined Exchange
-tile.refinedexchange.emcCrafter.name=EMC Crafter
-tile.refinedexchange.emcSolidifier.name=EMC Solidifier
-gui.refinedexchange:emcCrafter=EMC Crafter
-gui.refinedexchange:emcSolidifier=EMC Solidifier
+block.refinedstorage:emccrafter.name=EMC Crafter
+block.refinedstorage:liquifier.name=EMC Liquifier
+gui.refinedexchange:emccrafter=EMC Crafter
+gui.refinedexchange:liquifier=EMC Liquifier
 
-item.refinedexchange.solidEMC.name=Solidified EMC
+fluid.liquidemc=Liquified EMC

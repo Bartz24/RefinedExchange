@@ -1,0 +1,27 @@
+{
+  "result": {
+    "item": "refinedstorage:emccrafter"
+  },
+  "pattern": [
+    "XYX",
+    "ZAZ",
+    "XYX"
+  ],
+  "type": "forge:ore_shaped",
+  "key": {
+    "X": {
+      "item": "refinedstorage:quartz_enriched_iron"
+    },
+    "Y": {
+      "item": "projecte:item.pe_matter",
+      "data": 0
+    },
+    "Z": {
+      "item": "refinedstorage:core",
+      "data": 0
+    },
+    "A": {
+      "item": "refinedstorage:crafter"
+    }
+  }
+}

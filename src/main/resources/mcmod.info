@@ -2,16 +2,15 @@
 {
   "modid": "refinedexchange",
   "name": "Refined Exchange",
-  "description": "Autocraft in Refined Storage using ProjectE EMC!",
-  "version": "1.1.1",
-  "mcversion": "1.10.2",
+  "description": "Adding a balanced integration between ProjectE and Refined Storage. #balancedBecauseItTakesEffort",
+  "version": "2.0.1",
+  "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["Bartz24"],
-  "credits": "Authors of Refined Storage and ProjectE to make this possible!",
+  "credits": "Raoul, the dev of Refined Storage for making a simple but powerful storage system and the devs of ProjectE for supporting it all this time",
   "logoFile": "",
   "screenshots": [],
-  "requiredMods": ["refinedstorage", "ProjectE"],
   "dependencies": []
 }
 ]

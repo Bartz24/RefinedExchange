@@ -1,20 +1,17 @@
 package com.bartz24.refinedexchange.features.gui;
 
-import com.bartz24.refinedexchange.features.tile.TileEMCCrafter;
 import com.bartz24.refinedexchange.features.tile.TileLiquifier;
 import com.raoulvdberge.refinedstorage.gui.GuiBase;
 import com.raoulvdberge.refinedstorage.gui.control.SideButtonRedstoneMode;
-import com.raoulvdberge.refinedstorage.tile.TileCrafter;
 import com.raoulvdberge.refinedstorage.tile.TileInterface;
-import com.raoulvdberge.refinedstorage.util.RenderUtils;
 import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
 
-public class GuiEMCCrafter extends GuiBase {
-    TileEMCCrafter tile;
+public class GuiLiquifier extends GuiBase {
+    TileLiquifier tile;
 
-    public GuiEMCCrafter(ContainerEMCCrafter container) {
+    public GuiLiquifier(ContainerLiquifier container) {
         super(container, 211, 217);
         this.tile = container.tile;
     }
@@ -30,15 +27,18 @@ public class GuiEMCCrafter extends GuiBase {
 
     @Override
     public void drawBackground(int x, int y, int mouseX, int mouseY) {
-        bindTexture("gui/crafter.png");
+        bindTexture("gui/liquifier.png");
 
         drawTexture(x, y, 0, 0, screenWidth, screenHeight);
     }
 
     @Override
     public void drawForeground(int mouseX, int mouseY) {
-        this.drawString(7, 7, t("gui.refinedexchange:emccrafter"), 26);
-        this.drawString(7, 43, t("container.inventory", new Object[0]));
+        drawString(7, 46, t("container.inventory"));
+        this.drawString(7, 7, t("gui.refinedexchange:liquifier"), 26);
+
+        drawString(102, 18, "EMC Stored:", Color.GREEN.getRGB());
+        drawString(102, 28, Long.toString(this.tile.getNode().getEmcStored()), Color.GREEN.getRGB());
     }
 
     @Override

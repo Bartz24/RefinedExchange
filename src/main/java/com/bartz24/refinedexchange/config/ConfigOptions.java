@@ -1,48 +1,27 @@
 package com.bartz24.refinedexchange.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.bartz24.refinedexchange.References;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import net.minecraftforge.common.config.ConfigElement;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.config.IConfigElement;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+@Config(modid = References.ModID)
+@Mod.EventBusSubscriber
 public class ConfigOptions {
-	public static Configuration config;
 
-	public static int emcCrafterEnergy;
+    @Config.Comment("Set the multiplier for the EMC Crafter")
+    public static double emcCrafterEnergyMultiplier = 1f;
 
-	public static int emcSolidifierEnergy;
+    @Config.Comment("Set the multiplier for the EMC Liquifier")
+    public static double emcLiquifierEnergyMultiplier = 1f;
 
-	public static List<IConfigElement> getConfigElements() {
-		List<IConfigElement> list = new ArrayList<IConfigElement>();
-
-		list.addAll(new ConfigElement(config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements());
-
-		return list;
-	}
-
-	public static void setConfigSettings() {
-		emcCrafterEnergy = config.get(Configuration.CATEGORY_GENERAL, "EMC Crafter Energy", 40).getInt(40);
-
-		emcSolidifierEnergy = config.get(Configuration.CATEGORY_GENERAL, "EMC Solidifier Energy", 20).getInt(20);
-
-		if (config.hasChanged())
-			config.save();
-	}
-
-	public static void loadConfigThenSave(FMLPreInitializationEvent e) {
-		config = new Configuration(e.getSuggestedConfigurationFile());
-
-		config.load();
-		setConfigSettings();
-		config.save();
-	}
-
-	public static void reloadConfigs() {
-		setConfigSettings();
-		if (config.hasChanged())
-			config.save();
-	}
+    @SubscribeEvent
+    public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if (event.getModID().equals(References.ModID)) {
+            ConfigManager.sync(References.ModID, Config.Type.INSTANCE);
+        }
+    }
 }
