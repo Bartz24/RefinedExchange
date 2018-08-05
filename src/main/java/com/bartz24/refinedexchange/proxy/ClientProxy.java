@@ -40,8 +40,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     @SubscribeEvent
-    public static void registerModels(ModelRegistryEvent event)
-    {
+    public static void registerModels(ModelRegistryEvent event) {
         mapFluidState(ModBlocks.liquidEMC);
         registerItemRenderer(Item.getItemFromBlock(ModBlocks.liquifier));
         registerItemRenderer(Item.getItemFromBlock(ModBlocks.emccrafter));
@@ -78,32 +77,27 @@ public class ClientProxy extends CommonProxy {
         }
     }
 
-    public static void registerItemRenderer(Item item, int meta, ResourceLocation name)
-    {
+    public static void registerItemRenderer(Item item, int meta, ResourceLocation name) {
         ModelBakery.registerItemVariants(item, name);
         ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(name, "inventory"));
     }
 
-    public static void registerItemRenderer(Item item, int meta)
-    {
+    public static void registerItemRenderer(Item item, int meta) {
         registerItemRenderer(item, meta, new ResourceLocation(item.getRegistryName().toString() + meta));
     }
 
-    public static void registerItemRenderer(Item item, int meta, boolean global)
-    {
+    public static void registerItemRenderer(Item item, int meta, boolean global) {
         if (!global)
             registerItemRenderer(item, meta);
         else
             registerItemRenderer(item, meta, item.getRegistryName());
     }
 
-    public static void registerItemRenderer(Item item, ResourceLocation name)
-    {
+    public static void registerItemRenderer(Item item, ResourceLocation name) {
         registerItemRenderer(item, 0, name);
     }
 
-    public static void registerItemRenderer(Item item)
-    {
+    public static void registerItemRenderer(Item item) {
         registerItemRenderer(item, item.getRegistryName());
     }
 }

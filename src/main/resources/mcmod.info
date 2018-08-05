@@ -3,7 +3,7 @@
   "modid": "refinedexchange",
   "name": "Refined Exchange",
   "description": "Adding a balanced integration between ProjectE and Refined Storage. #balancedBecauseItTakesEffort",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",

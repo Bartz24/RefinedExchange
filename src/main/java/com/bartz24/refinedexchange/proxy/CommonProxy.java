@@ -2,6 +2,7 @@ package com.bartz24.refinedexchange.proxy;
 
 import com.bartz24.refinedexchange.RefinedExchange;
 import com.bartz24.refinedexchange.features.PacketLiquifier;
+import com.bartz24.refinedexchange.features.PacketLiquifierHandler;
 import com.bartz24.refinedexchange.features.emc.ProjectEMappings;
 import com.bartz24.refinedexchange.registry.ModGuiHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -19,7 +20,7 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent e) {
         NetworkRegistry.INSTANCE.registerGuiHandler(RefinedExchange.instance, new ModGuiHandler());
-        RefinedExchange.NETWORK_WRAPPER.registerMessage(PacketLiquifier.Handler.class, PacketLiquifier.class, 0, Side.CLIENT);
+        RefinedExchange.NETWORK_WRAPPER.registerMessage(PacketLiquifierHandler.class, PacketLiquifier.class, 0, Side.CLIENT);
     }
 
     public void postInit(FMLPostInitializationEvent e) {
