@@ -19,6 +19,7 @@ import com.raoulvdberge.refinedstorage.item.ItemPattern;
 import com.raoulvdberge.refinedstorage.item.ItemUpgrade;
 import com.raoulvdberge.refinedstorage.util.StackUtils;
 import moze_intel.projecte.api.ProjectEAPI;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -84,7 +85,9 @@ public class NetworkNodeEMCCrafter extends NetworkNode implements ICraftingPatte
                 ItemStack patternStack = new ItemStack(RSItems.PATTERN);
 
                 ItemPattern.setFluidInputSlot(patternStack, 0, new FluidStack(ModBlocks.liquidEMC, (int) ProjectEAPI.getEMCProxy().getValue(craftStack)));
-                ItemPattern.setOutputSlot(patternStack, 0, craftStack.copy());
+                ItemStack output = craftStack.copy();
+                output.setTagCompound(new NBTTagCompound());
+                ItemPattern.setOutputSlot(patternStack, 0, output);
                 ItemPattern.setProcessing(patternStack, true);
 
                 ICraftingPattern pattern = ((ICraftingPatternProvider) patternStack.getItem()).create(this.world, patternStack, this);

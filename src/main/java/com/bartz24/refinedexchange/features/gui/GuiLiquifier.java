@@ -37,8 +37,8 @@ public class GuiLiquifier extends GuiBase {
         drawString(7, 46, t("container.inventory"));
         this.drawString(7, 7, t("gui.refinedexchange:liquifier"), 26);
 
-        drawString(102, 18, "EMC Stored:", Color.GREEN.getRGB());
-        drawString(102, 28, Long.toString(this.tile.getNode().getEmcStored()), Color.GREEN.getRGB());
+        drawString(102, 18, "EMC Stored:", 0x06561A);
+        drawString(102, 28, Long.toString(this.tile.getNode().getEmcStored()), 0x06561A);
     }
 
     @Override
